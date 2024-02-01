@@ -1,0 +1,26 @@
+1ere etape : GERER LA MAP
+
+    - verifier que argc == 2
+    - le fichier passe en parametre est bien de type *.ber
+    - ouvrir le fichier (open)
+
+-> verifier que la map est conforme aux criteres demandes dans le sujet
+
+on parcourt le fichier avec get_next_line et on verifie :
+
+    - la map ne contient que les caracteres suivants : 0 1 P E C
+    - elle contient 1 sortie, 1 depart (si doublon, message d'erreur)
+    - elle contient AU MOINS 1 objet a collecter
+    - forme rectangulaire (width != height et nbr de charactere == dans ttes les lignes/colomnes)
+    - doit etre fermee par des murs, sinon message d'erreur
+    - verifier qu'il existe un chemin valide
+
+stocker les lignes au fur et a mesure dans une chaine de caractere que je remalloc a chaque fois.
+puis on split pour avoir notre char ** avec \n comme separateur.
+------------------------------------------------------------------------------------
+Si une erreur de configuration est détectée, le programme doit quitter proprement
+et retourner "Error\n" suivi d’un message d’erreur explicite de votre choix.
+------------------------------------------------------------------------------------
+
+
+REMPLACER LES PRINTF PAR MA VERSION FT_PRINTF !!!
