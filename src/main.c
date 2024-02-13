@@ -1,59 +1,68 @@
 #include "../inc/so_long.h"
 
-int	main(int argc, char **argv)
+bool    ft_check_file_extension(char *argv1)
 {
-	t_data_win *win;
-	t_data_map *map;
-	t_data_map *img;
+    int     i;
+    int     j;
+    char    *extension;
 
-	win = (t_data_win *)malloc(sizeof(t_data_win));
-	map = (t_data_map *)malloc(sizeof(t_data_map));
-	img = (t_data_map *)malloc(sizeof(t_data_map));
-	check_map(argc, argv, map);
-	print_map(map, win);
-	mlx_loop(win->mlx);
-	free(map);
-	free(win);
+    i = 0;
+    j = 0;
+    extension = ".ber";
+    while (argv1[i + 4] != '\0')
+        i++;
+    while (argv1[i] == extension[j])
+    {
+        i++;
+        j++;
+    }
+    if (j != 5)
+        return (0);
+    return (1);
 }
 
-/*int	main(void)
-{
-	void	*mlx;
-	void	*mlx_win;
-	void	*img_ptr;
-	int		img_width;
-	int		img_height;
-	int		x;
-	int		y;
-	
-	mlx = mlx_init();
-	mlx_win = mlx_new_window(mlx, 1920, 1080, "Background");
-	img_ptr = mlx_xpm_file_to_image(mlx, "soil.xpm", &img_width, &img_height);
-	if (img_ptr == NULL)
-	{
-		printf("error");
-		exit(EXIT_FAILURE);
-	}
-	y = 0;
-	while (y <= 1080 / img_height)
-	{
-		x = 0;
-		while (x <= 1920 / img_width)
-		{
-			mlx_put_image_to_window(mlx, mlx_win, img_ptr, x * img_width, y * img_height);
-			x++;
-		}
-		y++;
-	}
-	
-	//mlx_put_image_to_window(mlx, mlx_win, img_ptr, 0, 0);
-	//mlx_put_image_to_window(mlx, mlx_win, img_ptr, 0, img_height);
-	mlx_loop(mlx);
-	return (0);
-}*/
+/*keycode :
+113 = left A
+100 = right D
+122 = top W
+115 = bottom S*/
 
-//img.img = mlx_new_image(mlx, 1920, 1080);
-//img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel, &img.line_length,
-//							&img.endian);
-//my_mlx_pixel_put(&img, 5, 5, 0x00FF0000);
-//mlx_put_image_to_window(mlx, mlx_win, img.img, 0, 0);*/
+int	ft_key_hook(int keycode, t_data *data)
+{
+    if (keycode == 113)
+    {
+        data->player.direction = 'L';
+        ft_move_player(data, -1, 0);
+    }
+    if (keycode == 100)
+    {
+        data->player.direction = 'R';
+        ft_move_player(data, 1, 0);
+    }
+    if (keycode == 122)
+        ft_move_player(data, 0, -1);
+    if (keycode == 115)
+        ft_move_player(data, 0, 1);
+    if (keycode == 65307)
+        ft_close_win(data);
+    return (0);
+}
+
+int	main(int argc, char **argv)
+{
+	t_data data;
+
+	if (argc == 1)
+        ft_error("Error, please add a map as an argument.\n");
+    else if (argc > 2)
+        ft_error("Error, too many arguments.\n");
+    if (!ft_check_file_extension(argv[1]))
+    {
+        ft_error("Error, incorrect file extension, try with .ber.\n");
+    }
+    ft_check_map(argv, &data);
+	ft_print_map(&data);
+    mlx_key_hook(data.win, &ft_key_hook, &data);
+	mlx_hook(data.win, 17, 0, &ft_close_win, &data);
+	mlx_loop(data.mlx);
+}

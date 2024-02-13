@@ -6,14 +6,20 @@
 #    By: maax <maax@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/01/31 11:41:45 by maax              #+#    #+#              #
-#    Updated: 2024/01/31 11:41:53 by maax             ###   ########.fr        #
+#    Updated: 2024/02/13 14:12:34 by maax             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC = gcc
-CFLAGS = -I./include -Imlx_linux -O3
+CFLAGS = -Wall -Wextra -Werror -I./inc -Imlx_linux -O3
 
-SRC = src/main.c src/handle_pixel.c src/check_map.c src/print_map.c\
+SRC = 	src/main.c\
+		src/init_data.c\
+		src/check_map.c\
+		src/check_valid_path.c\
+		src/print_map.c\
+		src/animations.c\
+		src/error_and_exit.c\
 
 OBJ = $(SRC:.c=.o)
 

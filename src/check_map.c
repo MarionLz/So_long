@@ -1,119 +1,101 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   check_map.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: maax <maax@student.42.fr>                  +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/02/02 21:34:25 by maax              #+#    #+#             */
+/*   Updated: 2024/02/13 11:29:55 by maax             ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../inc/so_long.h"
 
-#include <stdlib.h>
-#include <stdbool.h>
-#include <fcntl.h>
-
-void    check_arg(int argc, char **argv)
-{
-    if (argc == 1)
-        print_error_and_exit("Error, please add a map as an argument.\n");
-    if (argc > 2)
-        print_error_and_exit("Error, too many arguments.\n");
-    if (!check_file_extension(argv[1]))
-        print_error_and_exit("Error, file extension is incorrect, try with .ber.\n");
-}
-
-bool    check_file_extension(char *argv1)
-{
-    int     i;
-    int     j;
-    char    *extension;
-
-    i = 0;
-    j = 0;
-    extension = ".ber";
-    while (argv1[i + 4] != '\0')
-        i++;
-    while (argv1[i] == extension[j])
-    {
-        i++;
-        j++;
-    }
-    if (j != 5)
-        return (0);
-    return (1);
-}
-
-void    print_error_and_exit(char *error_msg)
-{
-    ft_printf("%s", error_msg);
-    exit (EXIT_FAILURE);
-}
-
-void    read_map(char **argv, t_data_map *map)
+void    ft_read_map(char **argv, t_data *data)
 {
     int     fd;
     char    *line;
+    char    *map_str;
 
     fd = open(argv[1], O_RDONLY);
     if (fd == -1)
-        print_error_and_exit("Error, problem reading the file.");
-    map->map_str = ft_strdup("");
+        ft_error("Error, problem reading the file.");
+    map_str = ft_strdup("");
     while (1)
 	{
 		line = get_next_line(fd);
         if (!line)
 			break;
-        map->map_str = ft_strjoin(map->map_str, line);
+        map_str = ft_strjoin_and_free(map_str, line);
         free(line);
+        data->nb_row ++;
 	}
    	close(fd);
+    data->map = ft_split(map_str, '\n');
+    free(map_str);
 }
 
-/*void    free_tab(t_data_map *map)
+bool    ft_check_valid_char(char c)
 {
-
+    if (c == 'P' || c == 'E' || c == 'C' || c == '0' || c == '1')
+        return (1);
+    return (0);
 }
 
-void    read_map_cell(t_data_map *map, char c)
+void    ft_check_content(t_data *data)
 {
-    if (c == 'P')
-        map->nb_pos += 1;
-    else if (c == 'E')
-        map->nb_exit += 1;
-    else if (c == 'C')
-        map->nb_collectible += 1;
-    else if (c != 0 && c != 1)
+    int x;
+    int y;
+
+    y = 0;
+    while (data->map[y])
     {
-        free_tab();
-        print_error_and_exit("Error, wrong character in the map.");
-    }
-}
-
-void    check_map_content(t_data_map *map)
-{
-    int i;
-    int j;
-
-    i = 0;
-    j = 0;
-    while (map->map_tab[i])
-    {
-        while (map->map_tab[i][j])
+        x = 0;
+        while (data->map[y][x])
         {
-            read_map_cell(map, map->map_tab[i][j]);
+            if (!ft_check_valid_char(data->map[y][x]))
+                ft_error_map(data, "Error, wrong character used in the map.\n");
+            if ((x == 0 || x == data->nb_colomn - 1 || y == 0 || y == data->nb_row - 1) && data->map[y][x] != '1')
+                ft_error_map(data, "Error, map should be surrounded by walls.\n");
+            if (data->map[y][x] == 'P')
+                data->nb_pos += 1;
+            if (data->map[y][x] == 'E')
+                data->nb_exit += 1;
+            if (data->map[y][x] == 'C')
+                data->nb_collect += 1;
+            x++;
         }
+        y++;
     }
-}*/
-
-void    split_map(t_data_map *map)
-{
-    int i;
-    i = 0;
-    map->map_tab = ft_split(map->map_str, '\n');
-    while (i < 8)
-	{
-		ft_printf("%s\n", map->map_tab[i]);
-		i++;
-	}
-    free(map->map_str);
+    if (data->nb_pos != 1 || data->nb_exit != 1 || data->nb_collect == 0)
+        ft_error_map(data, "Error, map need 1 P, 1 E and at least 1 C.\n");
 }
 
-void    check_map(int argc, char **argv, t_data_map *map)
+void    ft_check_format(t_data *data)
 {
-    check_arg(argc, argv);
-    read_map(argv, map);
-    split_map(map);
-    //check_map_content(map);
+    int     i;
+    size_t  len_row;
+
+    i = 0;
+    len_row = ft_strlen(data->map[i]);
+    while (data->map[i])
+    {
+        if (ft_strlen(data->map[i]) != len_row)
+            ft_error_map(data, "Error, all rows must be the same lenght.\n");
+        i++;
+    }
+    data->nb_colomn = len_row;
+    if (data->nb_colomn == data->nb_row)
+        ft_error_map(data, "Error, map should be rectangular.\n");
+}
+
+void    ft_check_map(char **argv, t_data *data)
+{
+    ft_init_map_data(data);
+    ft_read_map(argv, data);
+    ft_check_content(data);
+    ft_check_format(data);
+    ft_init_player(data);
+    ft_check_valid_path(data);
 }

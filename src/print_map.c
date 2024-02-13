@@ -1,52 +1,47 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   print_map.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: maax <maax@student.42.fr>                  +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/02/02 16:27:59 by maax              #+#    #+#             */
+/*   Updated: 2024/02/09 18:10:19 by maax             ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../inc/so_long.h"
 
-void    init_window(t_data_win *win)
+void    ft_print_img(t_data *data)
 {
-    win->height = 1080;
-    win->width = 1920;
-    win->mlx = mlx_init();
-    win->mlx_win = mlx_new_window(win->mlx, win->width, win->height, "So_long");
+    int     x;
+    int     y;
+
+    y = 0;
+    while (data->map[y])
+    {
+        x = 0;
+        while (data->map[y][x])
+        {
+            if (data->map[y][x] == '1')
+                mlx_put_image_to_window(data->mlx, data->win, data->img.img_wall, x * IMG_WIDTH, y * IMG_HEIGHT);
+            if (data->map[y][x] == '0')
+                mlx_put_image_to_window(data->mlx, data->win, data->img.img_floor, x * IMG_WIDTH, y * IMG_HEIGHT);
+            if (data->map[y][x] == 'P')
+                mlx_put_image_to_window(data->mlx, data->win, data->img.img_player_l, x * IMG_WIDTH, y * IMG_HEIGHT);
+            if (data->map[y][x] == 'C')
+                mlx_put_image_to_window(data->mlx, data->win, data->img.img_collect, x * IMG_WIDTH, y * IMG_HEIGHT);
+            if (data->map[y][x] == 'E')
+                mlx_put_image_to_window(data->mlx, data->win, data->img.img_exit_cl, x * IMG_WIDTH, y * IMG_HEIGHT);
+            x++;
+        }
+        y++;
+    }
 }
 
-void    size_map_cell(t_data_map *map, t_data_win *win)
+void    ft_print_map(t_data *data)
 {
-    int         img_width;
-    int         img_height;
-    int         x;
-    int         y;
-    void *img;
-    int bpp;
-    int size_line;
-    int endian;
-
-    map->nb_row = 8;
-    map->nb_colomn = 15;
-    img = mlx_xpm_file_to_image(win->mlx, "tree.xpm", &img_width, &img_height);
-    if (img == NULL)
-        print_error_and_exit("Error, image reading has failed.");
-    img_height = win->height / map->nb_row;
-    img_width = win->width / map->nb_colomn;
-    
-    void *resized_img_ptr = mlx_new_image(win->mlx, img_width, img_height);
-    char *img_data = mlx_get_data_addr(img, &bpp, &size_line, &endian);
-    //win->img_ptr = mlx_new_image(win->mlx, img_width, img_height);
-    mlx_put_image_to_window(win->mlx, win->mlx_win, resized_img_ptr, 0, 0);
-
-    /*y = 0;
-	while (y <= map->nb_row)
-	{
-		x = 0;
-		while (x <= map->nb_colomn)
-		{
-			mlx_put_image_to_window(win->mlx, win->mlx_win, win->img_ptr, x * img_width, y * img_height);
-			x++;
-		}
-		y++;
-	}*/
-}
-
-void    print_map(t_data_map *map, t_data_win *win)
-{
-    init_window(win);
-    size_map_cell(map, win);    
+    ft_init_window(data);
+    ft_init_img(data);
+    ft_print_img(data);
 }
